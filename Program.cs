@@ -9,6 +9,7 @@ using MXMChallenge.Services.interfaces;
 using MXMChallenge.Services;
 using System.Reflection;
 using System.Text;
+using Microsoft.AspNetCore.CookiePolicy;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -89,6 +90,13 @@ builder.Services.AddScoped<IHashService, HashService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
+builder.Services.Configure<CookiePolicyOptions>(options =>
+{
+    options.CheckConsentNeeded = context => true; 
+    options.MinimumSameSitePolicy = SameSiteMode.None;
+    
+});
+
 
 
 
@@ -113,6 +121,8 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+
 
 app.MapControllers();
 

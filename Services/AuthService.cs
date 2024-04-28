@@ -84,7 +84,8 @@ namespace MXMChallenge.Services
 
         public TokenInfoDTO GetTokenDateByHtppContext(HttpContext httpContext)
         {
-            string token = httpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last() ?? throw new Exception("Erro na requisição");
+            string token = httpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last() ?? throw new Exception("Não autorizado");
+
 
 
             var handler = new JwtSecurityTokenHandler();

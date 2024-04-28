@@ -51,9 +51,33 @@ namespace MxmChallenge.Controllers
                 Fullname = user.Fullname,
                 Token = token
             };
+            var cookieOptions = new CookieOptions
+            {
+                
+               
+                SameSite = SameSiteMode.Strict, 
+                Expires = DateTimeOffset.UtcNow.AddDays(7) 
+            };
+
+          
+            Response.Cookies.Append("AuthToken", token, cookieOptions);
 
 
             return Ok(tokenInfoDTO);
         }
+
+        /// <summary>
+        /// Endpoint utilizado para logout do usuário.
+        /// </summary>
+        /// <returns>Remove o token de autenticação dos cookies.</returns>
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+
+            Response.Cookies.Delete("AuthToken");
+
+            return Ok("Logged out and cookie cleared");
+        }
+
     }
 }
