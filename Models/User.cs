@@ -26,7 +26,7 @@ namespace MxmChallenge.Models
         public string cpf_cnpj { get; set; } = null!;
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
-        public virtual Address Address { get; set; } = new Address();
+        public virtual Address Address { get; set; } = new Address();   
 
     }
 }
