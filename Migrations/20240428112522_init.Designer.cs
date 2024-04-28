@@ -12,7 +12,7 @@ using MxmChallenge.Data;
 namespace MxmChallenge.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240428030654_init")]
+    [Migration("20240428112522_init")]
     partial class init
     {
         /// <inheritdoc />

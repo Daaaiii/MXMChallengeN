@@ -3,6 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MxmChallenge.Data;
+using MxmChallenge.Repositories.Interfaces;
+using MxmChallenge.Repositories;
+using MXMChallenge.Services.interfaces;
+using MXMChallenge.Services;
 using System.Reflection;
 using System.Text;
 
@@ -17,7 +21,7 @@ builder.Services.AddCors(options =>
 {
 
     options.AddPolicy("AllowSpecificOrigin",
-            builder => builder.WithOrigins("https://mxm-challenge.vercel.app/home")
+            builder => builder.AllowAnyOrigin()
                               .AllowAnyHeader()
                               .AllowAnyMethod());
 });
@@ -78,12 +82,25 @@ builder.Services.AddSwaggerGen(c =>
 
 });
 
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<IHashService, HashService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+
+
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+else
 {
     app.UseSwagger();
     app.UseSwaggerUI();
