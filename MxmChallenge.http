@@ -1,0 +1,6 @@
+@MxmChallenge_HostAddress = http://localhost:5246
+
+GET {{MxmChallenge_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
