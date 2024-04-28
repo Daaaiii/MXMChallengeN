@@ -59,6 +59,11 @@ namespace MxmChallenge.Controllers
 
             Guid id = _authService.GetTokenDateByHtppContext(HttpContext).UserId;
 
+            if(id == Guid.Empty)
+            {
+                return BadRequest("User not found.");
+            }
+
             var user = await _userRepository.GetUserById(id);
             if (user == null)
             {
