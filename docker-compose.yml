@@ -1,0 +1,29 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=mxmChallenge;User Id=sa;Password=Your_strong_password123;Encrypt=False;TrustServerCertificate=True"
+      jwt__issuer: "MXMChallenge.com.br"
+      jwt__audience: "https://mxm-challenge.vercel.app/home"
+      jwt__secretKey: "D%9rBwi2P#^lK43fGN+TsxOzS7$$JgQcU5!Yy@1u0*HEaVkI6L&8mMRntZbpFovh"
+      Cors__AllowedOrigins__0: "http://localhost:4200"
+    depends_on:
+      - sqlserver
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Your_strong_password123"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+
+volumes:
+  sqlserver-data:

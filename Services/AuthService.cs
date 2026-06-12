@@ -40,8 +40,11 @@ namespace MXMChallenge.Services
         {
             var claims = new[]
             {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim("id", user.Id.ToString()),
                 new Claim("email", user.Email),
+                new Claim(ClaimTypes.Email, user.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
             var privateKey = new SymmetricSecurityKey(Encoding.UTF8.
@@ -97,8 +100,32 @@ namespace MXMChallenge.Services
 
             var tokenInfo = new TokenInfoDTO();
 
-            tokenInfo.UserId = Guid.Parse(claims.FirstOrDefault(c => c.Type == "id")?.Value!);
-            tokenInfo.Email = claims.FirstOrDefault(c => c.Type == "email")?.Value!;
+            var userIdClaim = claims.FirstOrDefault(c =>
+                c.Type == JwtRegisteredClaimNames.Sub ||
+                c.Type == ClaimTypes.NameIdentifier ||
+                c.Type == "nameidentifier" ||
+                c.Type == "id")?.Value;
+            var emailClaim = claims.FirstOrDefault(c =>
+                c.Type == ClaimTypes.Email ||
+                c.Type == JwtRegisteredClaimNames.Email ||
+                c.Type == "email")?.Value;
+
+            if (Guid.TryParse(userIdClaim, out var userId))
+            {
+                tokenInfo.UserId = userId;
+            }
+            else if (!string.IsNullOrWhiteSpace(emailClaim))
+            {
+                var user = _context.Users.FirstOrDefault(u => u.Email == emailClaim);
+                tokenInfo.UserId = user?.Id ?? Guid.Empty;
+            }
+
+            if (tokenInfo.UserId == Guid.Empty)
+            {
+                throw new UnauthorizedAccessException("Token sem usuario valido.");
+            }
+
+            tokenInfo.Email = emailClaim ?? string.Empty;
 
 
             return tokenInfo;

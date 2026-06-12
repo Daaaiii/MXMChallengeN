@@ -1,0 +1,8 @@
+bin/
+obj/
+.git/
+.vs/
+.vscode/
+.config/dotnet-tools/
+Dockerfile
+docker-compose.yml

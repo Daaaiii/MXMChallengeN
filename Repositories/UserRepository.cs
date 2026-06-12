@@ -1,4 +1,3 @@
-﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using MxmChallenge.Data;
 using MxmChallenge.Models;
@@ -8,21 +7,14 @@ using MXMChallenge.Services.interfaces;
 
 namespace MxmChallenge.Repositories
 {
-    public class UserRepository(ApplicationDbContext context, IMapper mapper, IHashService hashService) : IUserRepository
+    public class UserRepository(ApplicationDbContext context, IHashService hashService) : IUserRepository
     {
         private readonly ApplicationDbContext _context = context;
-        private readonly IMapper _mapper = mapper;
         private readonly IHashService _hashService = hashService;
-
-
-
 
         public async Task<UserDetailsDTO> CreateUser(CreateUserDTO createUserDTO)
         {
-
-            var existingEmail = await _context.Users.AnyAsync(
-                 u => u.Email == createUserDTO.Email
-             );
+            var existingEmail = await _context.Users.AnyAsync(u => u.Email == createUserDTO.Email);
             if (existingEmail)
             {
                 throw new ArgumentException("O email já está em uso.");
@@ -33,15 +25,14 @@ namespace MxmChallenge.Repositories
             {
                 throw new ArgumentException("O CPF já está em uso.");
             }
-            var user = _mapper.Map<User>(createUserDTO);
-            string hashedPassword = _hashService.HashPassword(createUserDTO.Password);
 
-            user.Password = hashedPassword;
+            var user = MapToUser(createUserDTO);
+            user.Password = _hashService.HashPassword(createUserDTO.Password);
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return _mapper.Map<UserDetailsDTO>(user);
+            return MapToDetails(user);
         }
 
         public async Task<bool> DeleteUser(Guid id)
@@ -52,9 +43,8 @@ namespace MxmChallenge.Repositories
                 throw new KeyNotFoundException("User not found");
             }
 
-
             _context.Users.Remove(user);
-            await context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             return true;
         }
@@ -69,7 +59,8 @@ namespace MxmChallenge.Repositories
             {
                 throw new KeyNotFoundException("User not found");
             }
-            return _mapper.Map<UserDetailsDTO>(user);
+
+            return MapToDetails(user);
         }
 
         public async Task<UserDetailsDTO> GetUserByEmail(string email)
@@ -82,7 +73,8 @@ namespace MxmChallenge.Repositories
             {
                 throw new KeyNotFoundException("User not found");
             }
-            return _mapper.Map<UserDetailsDTO>(user);
+
+            return MapToDetails(user);
         }
 
         public async Task<UserDetailsDTO> GetUserById(Guid id)
@@ -95,7 +87,8 @@ namespace MxmChallenge.Repositories
             {
                 throw new KeyNotFoundException("User not found");
             }
-            return _mapper.Map<UserDetailsDTO>(user);
+
+            return MapToDetails(user);
         }
 
         public async Task<List<UserDetailsDTO>> GetUsers()
@@ -104,7 +97,7 @@ namespace MxmChallenge.Repositories
                 .Users.Include(u => u.Address)
                 .ToListAsync();
 
-            return _mapper.Map<List<UserDetailsDTO>>(users);
+            return users.Select(MapToDetails).ToList();
         }
 
         public async Task<UserDetailsDTO> UpdateUser(Guid id, UpdateUserDTO updateUserDTO)
@@ -125,6 +118,7 @@ namespace MxmChallenge.Repositories
             {
                 throw new ArgumentException("Email already in use by another user");
             }
+
             if (
                 existingUser.cpf_cnpj != updateUserDTO.cpf_cnpj
                 && await _context.Users.AnyAsync(u => u.cpf_cnpj == updateUserDTO.cpf_cnpj)
@@ -133,16 +127,72 @@ namespace MxmChallenge.Repositories
                 throw new ArgumentException("CPF already in use by another user");
             }
 
-            _mapper.Map(updateUserDTO, existingUser);
+            ApplyUpdate(existingUser, updateUserDTO);
             existingUser.Password = _hashService.HashPassword(updateUserDTO.Password);
             existingUser.UpdatedAt = DateTime.Now;
 
             _context.Users.Update(existingUser);
             await _context.SaveChangesAsync();
 
-            var userDetailsDTO = _mapper.Map<UserDetailsDTO>(existingUser);
+            return MapToDetails(existingUser);
+        }
 
-            return userDetailsDTO;
+        private static User MapToUser(CreateUserDTO dto)
+        {
+            return new User
+            {
+                Fullname = dto.Fullname,
+                Email = dto.Email,
+                DDD = dto.DDD,
+                PhoneNumber = dto.PhoneNumber,
+                cpf_cnpj = dto.cpf_cnpj,
+                Address = new Address
+                {
+                    Zipcode = dto.Zipcode,
+                    Street = dto.Street,
+                    Number = dto.Number,
+                    Complement = dto.Complement,
+                    Neighborhood = dto.Neighborhood,
+                    City = dto.City,
+                    State = dto.State
+                }
+            };
+        }
+
+        private static void ApplyUpdate(User user, UpdateUserDTO dto)
+        {
+            user.Fullname = dto.Fullname;
+            user.Email = dto.Email;
+            user.DDD = dto.DDD;
+            user.PhoneNumber = dto.PhoneNumber;
+            user.cpf_cnpj = dto.cpf_cnpj;
+            user.Address.Zipcode = dto.Zipcode;
+            user.Address.Street = dto.Street;
+            user.Address.Number = dto.Number;
+            user.Address.Complement = dto.Complement;
+            user.Address.Neighborhood = dto.Neighborhood;
+            user.Address.City = dto.City;
+            user.Address.State = dto.State;
+        }
+
+        private static UserDetailsDTO MapToDetails(User user)
+        {
+            return new UserDetailsDTO
+            {
+                Id = user.Id,
+                Fullname = user.Fullname,
+                Email = user.Email,
+                DDD = user.DDD,
+                PhoneNumber = user.PhoneNumber,
+                cpf_cnpj = user.cpf_cnpj,
+                Zipcode = user.Address.Zipcode,
+                Street = user.Address.Street,
+                Number = user.Address.Number,
+                Complement = user.Address.Complement,
+                Neighborhood = user.Address.Neighborhood,
+                City = user.Address.City,
+                State = user.Address.State
+            };
         }
     }
 }

@@ -8,26 +8,39 @@ using MxmChallenge.Repositories;
 using MXMChallenge.Services.interfaces;
 using MXMChallenge.Services;
 using System.Reflection;
+using System.Text.Json;
 using System.Text;
 using Microsoft.AspNetCore.CookiePolicy;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-IConfiguration configuration = new ConfigurationBuilder()
-    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-    .Build();
-
 builder.Services.AddCors(options =>
 {
+    options.AddPolicy("AllowSpecificOrigin", policyBuilder =>
+    {
+        var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
 
-    options.AddPolicy("AllowSpecificOrigin",
-            builder => builder.AllowAnyOrigin()
-                              .AllowAnyHeader()
-                              .AllowAnyMethod());
+        if (allowedOrigins is { Length: > 0 })
+        {
+            policyBuilder.WithOrigins(allowedOrigins)
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        }
+        else
+        {
+            policyBuilder.AllowAnyOrigin()
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        }
+    });
 });
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
+    });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
@@ -45,10 +58,10 @@ builder.Services.AddAuthentication(opt =>
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
 
-        ValidIssuer = configuration["jwt:issuer"],
-        ValidAudience = configuration["jwt:audience"],
+        ValidIssuer = builder.Configuration["jwt:issuer"],
+        ValidAudience = builder.Configuration["jwt:audience"],
         IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(configuration["jwt:secretKey"]!)),
+            Encoding.UTF8.GetBytes(builder.Configuration["jwt:secretKey"]!)),
         ClockSkew = TimeSpan.Zero
     };
 });
@@ -83,12 +96,14 @@ builder.Services.AddSwaggerGen(c =>
 
 });
 
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
-builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        sqlOptions => sqlOptions.EnableRetryOnFailure()));
 builder.Services.AddScoped<IHashService, HashService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IFinanceSyncService, FinanceSyncService>();
 
 builder.Services.Configure<CookiePolicyOptions>(options =>
 {
