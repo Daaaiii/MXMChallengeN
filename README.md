@@ -27,6 +27,12 @@ Com a API rodando em `http://localhost:8080`, valide cadastro, login, snapshot e
 powershell -ExecutionPolicy Bypass -File scripts\validate-finance-e2e.ps1
 ```
 
+Valide tambem um merge com conflitos:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\validate-finance-conflict.ps1
+```
+
 Por padrao, o usuario temporario criado pelo script e removido ao final. Use `-KeepUser` para preservar os dados.
 
 ## Docker
