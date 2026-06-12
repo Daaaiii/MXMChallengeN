@@ -12,6 +12,7 @@ Backend ASP.NET Core para autenticacao, usuarios e modulo financeiro snapshot + 
 ```bash
 dotnet restore
 dotnet build
+dotnet test
 dotnet ef database update
 dotnet run
 ```
