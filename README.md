@@ -19,6 +19,16 @@ dotnet run
 
 Swagger fica disponivel no perfil local da API em `/swagger`.
 
+## Smoke test financeiro
+
+Com a API rodando em `http://localhost:8080`, valide cadastro, login, snapshot e sync:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\validate-finance-e2e.ps1
+```
+
+Por padrao, o usuario temporario criado pelo script e removido ao final. Use `-KeepUser` para preservar os dados.
+
 ## Docker
 
 ```bash
