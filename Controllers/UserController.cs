@@ -21,10 +21,10 @@ namespace MxmChallenge.Controllers
         }
 
         /// <summary>
-        /// Endpoint utilizado para criar um novo usuário.
+        /// Endpoint utilizado para criar um novo usuÃ¡rio.
         /// </summary>
-        /// <param name="createUserDTO">Dados necessários para criar um novo usuário.</param>
-        /// <returns>Retorna um objeto ActionResult contendo um CreateUserDTO em caso de sucesso, ou uma mensagem de erro em caso de falha na criação do usuário.</returns>
+        /// <param name="createUserDTO">Dados necessÃ¡rios para criar um novo usuÃ¡rio.</param>
+        /// <returns>Retorna um objeto ActionResult contendo um CreateUserDTO em caso de sucesso, ou uma mensagem de erro em caso de falha na criaÃ§Ã£o do usuÃ¡rio.</returns>
         [AllowAnonymous]
         [HttpPost]
         public async Task<ActionResult<CreateUserDTO>> CreateUser(CreateUserDTO createUserDTO)
@@ -46,9 +46,9 @@ namespace MxmChallenge.Controllers
 
 
         /// <summary>
-        /// Endpoint utilizado para obter detalhes de um usuário pelo seu ID.
+        /// Endpoint utilizado para obter detalhes de um usuï¿½rio pelo seu ID.
         /// </summary>
-        /// <returns>Retorna um objeto ActionResult contendo os detalhes do usuário em caso de sucesso, ou uma mensagem de erro em caso de usuário não encontrado.</returns>
+        /// <returns>Retorna um objeto ActionResult contendo os detalhes do usuï¿½rio em caso de sucesso, ou uma mensagem de erro em caso de usuï¿½rio nï¿½o encontrado.</returns>
         [HttpGet()]
         public async Task<ActionResult<UserDetailsDTO>> GetUser()
         {
@@ -75,10 +75,10 @@ namespace MxmChallenge.Controllers
 
 
         /// <summary>
-        /// Endpoint utilizado para atualizar informações de um usuário autenticado.
+        /// Endpoint utilizado para atualizar informaï¿½ï¿½es de um usuï¿½rio autenticado.
         /// </summary>
-        /// <param name="updateUserDTO">Dados necessários para atualizar as informações do usuário.</param>
-        /// <returns>Retorna um objeto ActionResult contendo os detalhes atualizados do usuário em caso de sucesso, ou uma mensagem de erro em caso de falha na atualização.</returns>
+        /// <param name="updateUserDTO">Dados necessï¿½rios para atualizar as informaï¿½ï¿½es do usuï¿½rio.</param>
+        /// <returns>Retorna um objeto ActionResult contendo os detalhes atualizados do usuï¿½rio em caso de sucesso, ou uma mensagem de erro em caso de falha na atualizaï¿½ï¿½o.</returns>
         [Authorize]
         [HttpPut()]
         public async Task<ActionResult<UserDetailsDTO>> UpdateUser(
@@ -112,9 +112,9 @@ namespace MxmChallenge.Controllers
         }
 
         /// <summary>
-        /// Endpoint utilizado para excluir um usuário autenticado.
+        /// Endpoint utilizado para excluir um usuï¿½rio autenticado.
         /// </summary>
-        /// <returns>Retorna um objeto ActionResult indicando o resultado da operação de exclusão. Em caso de sucesso, retorna um status 200 OK com uma mensagem indicando que o usuário foi excluído com sucesso. Em caso de falha, retorna um status 404 Not Found com uma mensagem indicando que o usuário não foi encontrado.</returns>
+        /// <returns>Retorna um objeto ActionResult indicando o resultado da operaï¿½ï¿½o de exclusï¿½o. Em caso de sucesso, retorna um status 200 OK com uma mensagem indicando que o usuï¿½rio foi excluï¿½do com sucesso. Em caso de falha, retorna um status 404 Not Found com uma mensagem indicando que o usuï¿½rio nï¿½o foi encontrado.</returns>
         [Authorize]
         [HttpDelete()]
         public async Task<ActionResult> DeleteUser()
